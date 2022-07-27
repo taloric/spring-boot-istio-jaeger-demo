@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.apache.skywalking.apm.toolkit.trace.RunnableWrapper;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RestController
 public class GreetingController {
@@ -27,10 +30,20 @@ public class GreetingController {
   @RequestMapping("/greeting")
   public String greeting(@RequestParam(value = "name", defaultValue = "World") String name,
       @RequestHeader HttpHeaders headers) {
+    
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    executor.submit(RunnableWrapper.of(new Runnable() {
+      @Override public void run() {
+        redisTemplate.boundValueOps("loo").get();
+      }
+    }));
 
-    redisTemplate.boundValueOps("loo").get();
-    jdbcTemplate.queryForObject("select 'loo' from dual", String.class);
-
+    executor.submit(RunnableWrapper.of(new Runnable() {
+      @Override public void run() {
+        jdbcTemplate.queryForObject("select 'loo' from dual", String.class);
+      }
+    }));
+    
     return headers(headers) + String.format(template, name);
   }
 
