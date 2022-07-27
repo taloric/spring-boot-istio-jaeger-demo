@@ -1,3 +1,13 @@
+# Description
+
+- fork from [spring-boot-istio-jaeger-demo](https://github.com/chanjarster/spring-boot-istio-jaeger-demo)
+
+- 改造为 springboot + (skywalking agent / otel agent) 作测试，原架构的 istio 作为可选项
+
+---
+
+# 以下为原Readme
+
 # spring-boot-istio-jaeger-demo
 
 Spring Boot项目利用Jaeger做分布式Tracing的例子。
