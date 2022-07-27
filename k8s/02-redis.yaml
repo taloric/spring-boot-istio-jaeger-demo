@@ -9,7 +9,7 @@ metadata:
     app: redis
     release: redis
   name: redis-master
-  namespace: sb-jaeger-tracing-demo
+  namespace: sb-tracing-demo
 spec:
   type: ClusterIP
   selector:
@@ -30,7 +30,7 @@ metadata:
     chart: redis-3.0.2
     release: redis
   name: redis-master
-  namespace: sb-jaeger-tracing-demo
+  namespace: sb-tracing-demo
 spec:
   podManagementPolicy: OrderedReady
   replicas: 1

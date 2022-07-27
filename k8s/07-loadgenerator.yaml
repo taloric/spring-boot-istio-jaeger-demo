@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgenerator
+  namespace: sb-tracing-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadgenerator
+  template:
+    metadata:
+      labels:
+        app: loadgenerator
+    spec:
+      containers:
+        - name: loadgenerator
+          image: taloricag/spring-loadgenerator:1.0
+          env:
+            - name: FRONTEND_ADDR
+              value: foo-svc
+            - name: USERS
+              value: '1'
+          resources: {}
+          imagePullPolicy: IfNotPresent

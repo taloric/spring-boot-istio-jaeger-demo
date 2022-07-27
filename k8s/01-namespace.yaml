@@ -4,7 +4,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: sb-jaeger-tracing-demo
+  name: sb-tracing-demo
   labels:
     istio-injection: enabled
 ---
@@ -12,7 +12,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: demo-config
-  namespace: sb-jaeger-tracing-demo
+  namespace: sb-tracing-demo
 data:
   JAEGER_UDP_SENDER_HOST: jaeger-agent.istio-system.svc.cluster.local
   REDIS_HOST: redis-master
