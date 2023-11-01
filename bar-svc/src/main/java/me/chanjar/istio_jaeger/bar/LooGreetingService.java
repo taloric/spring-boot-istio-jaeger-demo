@@ -15,7 +15,7 @@ public class LooGreetingService {
 
   }
 
-  public String greeting() {
-    return restTemplate.getForObject("/greeting?name=bar-svc", String.class);
+  public String greeting(String name) {
+    return restTemplate.getForObject(String.format("/greeting?name=%s", name), String.class);
   }
 }

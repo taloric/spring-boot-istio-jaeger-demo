@@ -6,7 +6,7 @@ bar-svc:
 
 opentracing:
   jaeger:
-    enable-b3-propagation: true
+    enable-b3-propagation: false
     udp-sender:
       host: ${JAEGER_UDP_SENDER_HOST:localhost}
   spring:

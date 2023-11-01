@@ -5,16 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.apache.skywalking.apm.toolkit.trace.RunnableWrapper;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.UUID;
 
 @RestController
 public class GreetingController {
@@ -34,20 +33,28 @@ public class GreetingController {
   public String greeting(@RequestParam(value = "name", defaultValue = "World") String name,
       @RequestHeader HttpHeaders httpHeaders) {
 
-    ExecutorService executor = Executors.newFixedThreadPool(2);
-    executor.submit(RunnableWrapper.of(new Runnable() {
-      @Override public void run() {
+    if (name.equals("cache")) {
         redisTemplate.boundValueOps("bar").get();
-      }
-    }));
 
-    executor.submit(RunnableWrapper.of(new Runnable() {
-      @Override public void run() {
-        jdbcTemplate.queryForObject("select 'bar' from dual", String.class);
-      }
-    }));
+        String uid = getUUID();
+        long result = redisTemplate.boundSetOps(uid).add(Long.toString(System.currentTimeMillis()));
+        System.out.printf("set %s result success with %d\n", uid, result);
 
-    String looGreeting = looGreetingService.greeting();
+        String value = redisTemplate.boundSetOps(uid).randomMember();
+        System.out.printf("get uid %s value %s \n ", uid, value);
+    }
+
+    if (name.equals("user")) {
+      jdbcTemplate.queryForObject("select 'bar' from dual", String.class);
+      SqlRowSet set = jdbcTemplate.queryForRowSet("select user from sys.processlist");
+      int count = 0;
+      while (set.next()) {
+        count++;
+      }
+      System.out.printf("get users length: %d \n ", count);
+    }
+
+    String looGreeting = looGreetingService.greeting(name);
 
     return headers(httpHeaders) + String.format(template, name) + looGreeting;
   }
@@ -67,6 +74,10 @@ public class GreetingController {
 
     return sb.toString();
 
+  }
+
+  private String getUUID() {
+    return UUID.randomUUID().toString().replace("-", "").toLowerCase();
   }
 
 }

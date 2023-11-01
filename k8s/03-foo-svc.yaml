@@ -90,7 +90,7 @@ spec:
           emptyDir: {}
       initContainers:
         - name: agent
-          image: taloricag/opentelemetry-javaagent:1.15.0
+          image: taloricag/opentelemetry-javaagent:1.31.0
           command:
             - /bin/sh
           args:
@@ -103,9 +103,23 @@ spec:
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: IfNotPresent
+        - name: pscope
+          image: taloricag/pyroscope-agent:v0.12.2
+          command:
+            - /bin/sh
+          args:
+            - '-c'
+            - cp -R /pyroscope/agent/ /sidecar/
+          resources: {}
+          volumeMounts:
+            - name: agent
+              mountPath: /sidecar
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
       containers:
       - name: foo-svc
-        image: taloricag/sb-agent-demo-foo-svc:0.1.0
+        image: ${image_repo}/springboot-foo-svc:1.0
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -113,11 +127,19 @@ spec:
         env:
           - name: JVM_OPTS
             value: "-Xms256m -Xmx256m"
+          - name: PYROSCOPE_APPLICATION_NAME
+            value: java-foo-svc
+          - name: PYROSCOPE_EXPORT_COMPRESSION_LEVEL_JFR
+            value: '0'
+          - name: PYROSCOPE_EXPORT_COMPRESSION_LEVEL_LABELS
+            value: '0'
           - name: JAVA_ARGS
             value: >-
               -javaagent:/sidecar/agent/opentelemetry-javaagent.jar
+              -javaagent:/sidecar/agent/pyroscope.jar
               -Dotel.resource.attributes=service.name=foo-svc
-              -Dotel.traces.exporter=otlp
+              -Dotel.traces.exporter=otlp -XX:+PreserveFramePointer
+              -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
           - name: OTEL_EXPORTER_OTLP_ENDPOINT
             value: http://otel-collector.open-telemetry:4317
         envFrom:

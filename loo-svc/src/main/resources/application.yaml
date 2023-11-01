@@ -6,11 +6,42 @@ spring:
     name: loo-svc
   redis:
     host: ${REDIS_HOST:redis}
-  port: ${REDIS_PORT:6379}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:yunshan3302}
+    client-type: jedis
+    jedis:
+      pool:
+        max-active: 100
+        max-idle: 100
+        max-wait: 10000
+        min-idle: 0
+        time-between-eviction-runs-millis: 30000
+        test-while-idle: true
+        num-tests-per-eviction-run: -1
+        min-evictable-idle-time-millis: 60000
+  datasource:
+   driver-class-name: com.mysql.jdbc.Driver
+   url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}?connectTimeout=3000&socketTimeout=10000&characterEncoding=utf8&useTimezone=true&serverTimezone=Asia/Shanghai&useSSL=false
+   username: ${MYSQL_USER}
+   password: ${MYSQL_PASSWORD}
+   hikari:
+    pool-name: HikariCP
+    #最小空闲连接数
+    minimum-idle: 10
+    # 空闲连接存活最大时间，默认10分钟
+    idle-timeout: 600000
+    # 连接池最大连接数，默认是10
+    maximum-pool-size: 10
+    # 此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认30分钟
+    max-lifetime: 600000
+    # 数据库连接超时时间,默认30秒
+    connection-timeout: 10000
+    # 连接测试query
+    connection-test-query: SELECT 1
 
 opentracing:
   jaeger:
-    enable-b3-propagation: true
+    enable-b3-propagation: false
     udp-sender:
       host: ${JAEGER_UDP_SENDER_HOST:localhost}
   spring:

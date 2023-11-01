@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.apache.skywalking.apm.toolkit.trace.SupplierWrapper;
 
@@ -21,10 +22,11 @@ public class IndexController {
   private BarGreetingService barGreetingService;
 
   @RequestMapping(value = "/", produces = MimeTypeUtils.TEXT_PLAIN_VALUE)
-  public String index(@RequestHeader HttpHeaders headers) {
+  public String index(@RequestParam(value = "name", defaultValue = "World") String name,
+      @RequestHeader HttpHeaders headers) {
 
     CompletableFuture<String> result = CompletableFuture.supplyAsync(SupplierWrapper.of(() -> {
-      return headers(headers) + barGreetingService.greeting();
+      return headers(headers) + barGreetingService.greeting(name);
     }));
 
     try {
@@ -34,8 +36,7 @@ public class IndexController {
     } catch (ExecutionException e) {
       e.printStackTrace();
     }
-    return "";
-    //return headers(headers) + barGreetingService.greeting();
+    return headers(headers) + barGreetingService.greeting(name);
   }
 
   private String headers(HttpHeaders headers) {

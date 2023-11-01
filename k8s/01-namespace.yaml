@@ -14,5 +14,12 @@ metadata:
   name: demo-config
   namespace: sb-tracing-demo
 data:
-  JAEGER_UDP_SENDER_HOST: jaeger-agent.istio-system.svc.cluster.local
-  REDIS_HOST: redis-master
+  JAEGER_UDP_SENDER_HOST: jaeger-svc
+  REDIS_HOST: 'redis-svc'
+  REDIS_PORT: '6379'
+  REDIS_PASSWORD: ''
+  MYSQL_HOST: 'mysql-svc'
+  MYSQL_PORT: '3306'
+  MYSQL_DB: 'sys'
+  MYSQL_USER: 'sys'
+  MYSQL_PASSWORD: ''
